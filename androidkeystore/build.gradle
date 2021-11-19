@@ -1,8 +1,6 @@
-plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    id 'maven-publish'
-}
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply from: 'publish.gradle'
 
 android {
     compileSdkVersion 31
@@ -42,42 +40,4 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-}
-
-def VERSION_NAME = "1.0.1"
-def gitLabPrivateToken
-
-task readGitLabPrivateToken() {
-    String fileName = "token.properties"
-    Properties properties = new Properties()
-    File proFile = rootProject.file(fileName)
-    properties.load(proFile.newReader("UTF-8"))
-    gitLabPrivateToken = properties.getProperty("gitLabPrivateToken")
-    println gitLabPrivateToken
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = 'com.pax.jc'
-                artifactId = 'androidkeystore'
-                version = VERSION_NAME
-            }
-        }
-
-        repositories {
-            maven {
-                url "https://openrepo.paxengine.com.cn/api/v4/projects/19/packages/maven"
-                credentials(HttpHeaderCredentials) {
-                    name = 'Private-Token'
-                    value = gitLabPrivateToken
-                }
-                authentication {
-                    header(HttpHeaderAuthentication)
-                }
-            }
-        }
-    }
 }
