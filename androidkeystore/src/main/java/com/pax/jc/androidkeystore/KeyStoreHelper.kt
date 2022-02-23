@@ -2,13 +2,16 @@ package com.pax.jc.androidkeystore
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.hardware.biometrics.BiometricPrompt
 import android.os.Build
+import android.os.CancellationSignal
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyInfo
 import android.security.keystore.KeyProperties
 import android.security.keystore.KeyProtection
 import android.text.TextUtils
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.security.*
@@ -17,6 +20,7 @@ import java.security.cert.CertificateException
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.InvalidKeySpecException
 import java.util.*
+import java.util.concurrent.Executor
 import javax.crypto.*
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -28,6 +32,8 @@ import javax.crypto.spec.SecretKeySpec
 class KeyStoreHelper private constructor(context: Context) {
     private lateinit var mKeyStore: KeyStore
     private var mContextWeakReference: WeakReference<Context>? = null
+    private lateinit var executor: Executor
+    private lateinit var biometricPrompt: BiometricPrompt
 
     /**
      * Save the AES key to the KeyStore.
@@ -302,7 +308,7 @@ class KeyStoreHelper private constructor(context: Context) {
      * @return result
      */
     fun cryptPublic(alias: String?, opmode: Int, data: ByteArray?): ByteArray {
-        return crypt(
+        return cryptAsymmetric(
             alias, RSA_PUBLIC, opmode,
             KeyProperties.BLOCK_MODE_ECB, KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1, data
         )
@@ -317,7 +323,7 @@ class KeyStoreHelper private constructor(context: Context) {
      * @return result
      */
     fun cryptPrivate(alias: String?, opmode: Int, data: ByteArray?): ByteArray {
-        return crypt(
+        return cryptAsymmetric(
             alias, RSA_PRIVATE, opmode,
             KeyProperties.BLOCK_MODE_ECB, KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1, data
         )
@@ -334,7 +340,7 @@ class KeyStoreHelper private constructor(context: Context) {
      * @param data      data
      * @return result
      */
-    fun crypt(
+    fun cryptAsymmetric(
         alias: String?, option: Int, opmode: Int, blockMode: String,
         padding: String, data: ByteArray?
     ): ByteArray {
@@ -444,7 +450,7 @@ class KeyStoreHelper private constructor(context: Context) {
      * @param data      data
      * @return result
      */
-    fun crypt(alias: String?, opmode: Int, blockMode: Int, data: ByteArray?): ByteArray {
+    fun cryptSymmetric(alias: String?, opmode: Int, blockMode: Int, data: ByteArray?): ByteArray {
         return if (blockMode == 1) {
             cryptECB(alias, opmode, data)
         } else if (blockMode == 2) {
@@ -499,7 +505,7 @@ class KeyStoreHelper private constructor(context: Context) {
         alias: String?, blockMode: String, padding: String, opmode: Int, iv: ByteArray?,
         data: ByteArray?
     ): ByteArray {
-        return crypt(
+        return cryptSymmetric(
             alias, KeyProperties.KEY_ALGORITHM_AES, blockMode,
             padding, opmode, iv, data
         )
@@ -517,9 +523,29 @@ class KeyStoreHelper private constructor(context: Context) {
      * @param data      data
      * @return result
      */
-    fun crypt(
+    fun cryptSymmetric(
         alias: String?, algorithm: String, blockMode: String, padding: String,
         opmode: Int, iv: ByteArray?, data: ByteArray?
+    ): ByteArray {
+        return cryptSymmetric(alias, algorithm, blockMode, padding, opmode, iv, data, false)
+    }
+
+    /**
+     * Encrypted or Decrypted with key.
+     *
+     * @param alias     alias
+     * @param algorithm algorithm
+     * @param blockMode blockMode
+     * @param padding   padding
+     * @param opmode    [Cipher.ENCRYPT_MODE] or [Cipher.DECRYPT_MODE]
+     * @param iv        The initial vector, may be null.
+     * @param data      data
+     * @param authRequired
+     * @return result
+     */
+    fun cryptSymmetric(
+        alias: String?, algorithm: String, blockMode: String, padding: String,
+        opmode: Int, iv: ByteArray?, data: ByteArray?, authRequired: Boolean
     ): ByteArray {
         var nowIv = iv
         val result = ByteArray(0)
@@ -550,7 +576,47 @@ class KeyStoreHelper private constructor(context: Context) {
             } else {
                 cipher.init(opmode, key)
             }
-            cipher.doFinal(data)
+            if (authRequired) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    biometricPrompt = BiometricPrompt.Builder(this.mContextWeakReference?.get())
+                        .setTitle("Biometric decrypt for my app")
+                        .setSubtitle("Decrypt in using your biometric credential")
+                        .setNegativeButton(
+                            "Use account password",
+                            executor,
+                            { _, _ -> ByteArray(0) })
+                        .build()
+                    biometricPrompt.authenticate(
+                        BiometricPrompt.CryptoObject(cipher),
+                        CancellationSignal(),
+                        executor,
+                        object : BiometricPrompt.AuthenticationCallback() {
+                            override fun onAuthenticationError(
+                                errorCode: Int,
+                                errString: CharSequence?
+                            ) {
+                                super.onAuthenticationError(errorCode, errString)
+                                ByteArray(0)
+                            }
+
+                            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                super.onAuthenticationSucceeded(result)
+                                result.cryptoObject.cipher?.doFinal(data)
+                            }
+
+                            override fun onAuthenticationFailed() {
+                                super.onAuthenticationFailed()
+                                ByteArray(0)
+                            }
+                        }
+                    )
+                } else {
+                    cipher.doFinal(data)
+                }
+            } else {
+                cipher.doFinal(data)
+            }
+            result
         } catch (e: KeyStoreException) {
             e.printStackTrace()
             result
@@ -793,6 +859,7 @@ class KeyStoreHelper private constructor(context: Context) {
         if (mContextWeakReference == null) {
             mContextWeakReference = WeakReference(context)
         }
+        executor = ContextCompat.getMainExecutor(this.mContextWeakReference?.get())
         initKeyStore()
     }
 }

@@ -4,46 +4,184 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:padding="@dimen/main_padding">
 
-    <Button
-        android:id="@+id/generate_key_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="GenerateKey"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/key_test_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="KeyTest"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/generate_key_btn" />
-
-    <Button
-        android:id="@+id/delete_key_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="DeleteKey"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/key_test_btn" />
-
-    <TextView
-        android:id="@+id/result_tv"
+    <RadioGroup
+        android:id="@+id/alg_rg"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/delete_key_btn" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/alg_aes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/alg_aes" />
+
+        <RadioButton
+            android:id="@+id/alg_rsa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/alg_rsa" />
+
+        <RadioButton
+            android:id="@+id/alg_ec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/alg_ec" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/block_mode_rg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alg_rg">
+
+        <RadioButton
+            android:id="@+id/block_mode_ecb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/blk_ecb" />
+
+        <RadioButton
+            android:id="@+id/block_mode_cbc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/blk_cbc" />
+
+        <RadioButton
+            android:id="@+id/block_mode_ctr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/blk_ctr" />
+
+        <RadioButton
+            android:id="@+id/block_mode_gcm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/blk_gcm" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/padding_rg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/block_mode_rg">
+
+        <RadioButton
+            android:id="@+id/padding_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pad_no" />
+
+        <RadioButton
+            android:id="@+id/padding_pkcs7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pad_pkcs7" />
+
+        <RadioButton
+            android:id="@+id/padding_pkcs1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pad_pkcs1" />
+
+        <RadioButton
+            android:id="@+id/padding_oaep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pad_oaep" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/action_rg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/padding_rg">
+
+        <RadioButton
+            android:id="@+id/action_generate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_generate" />
+
+        <RadioButton
+            android:id="@+id/action_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_delete" />
+
+        <RadioButton
+            android:id="@+id/action_encrypt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_encrypt" />
+
+        <RadioButton
+            android:id="@+id/action_decrypt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_decrypt" />
+
+    </RadioGroup>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/confirm_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/confirm"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_et" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/input_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/auth_sw" />
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/key_length_sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/key_length"
+        app:layout_constraintBottom_toBottomOf="@+id/auth_sw"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/auth_sw" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirm_button" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/auth_sw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_authentication_required"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/action_rg" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">AndroidKeyStore</string>
+    <string name="alg_aes">AES</string>
+    <string name="alg_rsa">RSA</string>
+    <string name="alg_ec">EC</string>
+    <string name="blk_ecb">ECB</string>
+    <string name="blk_cbc">CBC</string>
+    <string name="blk_ctr">CTR</string>
+    <string name="blk_gcm">GCM</string>
+    <string name="pad_no">NoPadding</string>
+    <string name="pad_pkcs7">PKCS7</string>
+    <string name="pad_pkcs1">PKCS1</string>
+    <string name="pad_oaep">OAEP</string>
+    <string name="action_generate">Generate</string>
+    <string name="action_encrypt">Encrypt</string>
+    <string name="action_decrypt">Decrypt</string>
+    <string name="action_delete">Delete</string>
+    <string name="confirm">confirm</string>
+    <string name="user_authentication_required">UserAuthenticationRequired</string>
 </resources>
