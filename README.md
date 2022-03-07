@@ -39,5 +39,5 @@ allprojects {
 build.gradle of module.
 
 ```groovy
-implementation 'com.pax.jc:androidkeystore:1.0.0'
+implementation 'com.jc:androidkeystore:1.0.0'
 ```
