@@ -15,7 +15,7 @@ buildscript {
             url = uri("https://maven.pkg.github.com/Chenziquan/AndroidKeyStore")
             credentials {
                 username = "Chenziquan"
-                password = "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"
+                password = "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"
             }
         }
     }
@@ -29,7 +29,7 @@ allprojects {
             url = uri("https://maven.pkg.github.com/Chenziquan/AndroidKeyStore")
             credentials {
                 username = "Chenziquan"
-                password = "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"
+                password = "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"
             }
         }
     }
